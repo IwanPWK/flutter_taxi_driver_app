@@ -22,7 +22,7 @@ void main() async {
 class MyApp extends StatefulWidget {
   final Widget? child;
 
-  const MyApp({this.child});
+  const MyApp({super.key, this.child});
 
   static void restartApp(BuildContext context) {
     context.findAncestorStateOfType<_MyAppState>()!.restartApp();

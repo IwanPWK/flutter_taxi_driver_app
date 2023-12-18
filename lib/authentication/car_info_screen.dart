@@ -4,6 +4,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../spash_screen/splash_screen.dart';
 
 class CarInfoScreen extends StatefulWidget {
+  const CarInfoScreen({super.key});
+
   @override
   State<CarInfoScreen> createState() => _CarInfoScreenState();
 }
@@ -144,11 +146,11 @@ class _CarInfoScreenState extends State<CarInfoScreen> {
                 },
                 items: carTypesList.map((car) {
                   return DropdownMenuItem(
+                    value: car,
                     child: Text(
                       car,
                       style: const TextStyle(color: Colors.grey),
                     ),
-                    value: car,
                   );
                 }).toList(),
               ),

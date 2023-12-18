@@ -43,7 +43,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         });
 
     Fluttertoast.showToast(msg: "Account has been Created.");
-    Navigator.push(context, MaterialPageRoute(builder: (c) => CarInfoScreen()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (c) => const CarInfoScreen()));
   }
 
   @override

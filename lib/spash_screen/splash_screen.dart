@@ -7,14 +7,13 @@ class MySplashScreen extends StatefulWidget {
   const MySplashScreen({Key? key}) : super(key: key);
 
   @override
-  _MySplashScreenState createState() => _MySplashScreenState();
+  State<MySplashScreen> createState() => _MySplashScreenState();
 }
 
 class _MySplashScreenState extends State<MySplashScreen> {
   startTimer() {
     Timer(const Duration(seconds: 3), () async {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (c) => const MainScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (c) => MainScreen()));
     });
   }
 

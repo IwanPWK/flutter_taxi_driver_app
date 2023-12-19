@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../global/global.dart';
-import '../spash_screen/splash_screen.dart';
+import '../splash_screen/splash_screen.dart';
 
 class CarInfoScreen extends StatefulWidget {
   const CarInfoScreen({super.key});

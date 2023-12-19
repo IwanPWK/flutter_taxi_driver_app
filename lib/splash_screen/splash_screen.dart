@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter_taxi_driver_app/authentication/signup_screen.dart';
+import 'package:flutter_taxi_driver_app/authentication_screens/signup_screen.dart';
 
-import '../authentication/car_info_screen.dart';
-import '../authentication/login_screen.dart';
+import '../authentication_screens/car_info_screen.dart';
+import '../authentication_screens/login_screen.dart';
 import '../global/global.dart';
-import '../main_screen/main_screen.dart';
+import '../main_screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
 class MySplashScreen extends StatefulWidget {

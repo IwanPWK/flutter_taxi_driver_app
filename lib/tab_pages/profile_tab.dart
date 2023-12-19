@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../global/global.dart';
-import '../spash_screen/splash_screen.dart';
+import '../splash_screen/splash_screen.dart';
 
 class ProfileTabPage extends StatefulWidget {
   const ProfileTabPage({Key? key}) : super(key: key);

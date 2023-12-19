@@ -51,8 +51,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
     )
             .catchError((msg) {
       Navigator.pop(context);
+      if (msg is FirebaseAuthException) {
+        switch (msg.code) {
+          case "invalid-email":
+            Fluttertoast.showToast(
+                msg: "Your email address appears to be malformed.");
+            break;
+          case "wrong-password":
+            Fluttertoast.showToast(msg: "Your password is wrong.");
+            break;
+          case "user-not-found":
+            Fluttertoast.showToast(msg: "User with this email doesn't exist.");
+            break;
+          case "user-disabled":
+            Fluttertoast.showToast(
+                msg: "User with this email has been disabled.");
+            break;
+          case "too-many-requests":
+            Fluttertoast.showToast(msg: "Too many requests. Try again later.");
+            break;
+          case "email-already-in-use":
+            Fluttertoast.showToast(
+                msg: "The email address is already in use by another account.");
+            break;
+          case "operation-not-allowed":
+            Fluttertoast.showToast(
+                msg: "Signing in with Email and Password is not enabled.");
+            break;
+          default:
+            Fluttertoast.showToast(
+                msg: "An undefined Error happened, Please contact support.");
+        }
+      }
 
-      Fluttertoast.showToast(msg: "Error: " + msg.toString());
+      // Fluttertoast.showToast(msg: "Error: " + msg.toString());
     }))
         .user;
 

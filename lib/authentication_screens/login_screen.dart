@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -45,15 +46,55 @@ class _LoginScreenState extends State<LoginScreen> {
     )
             .catchError((msg) {
       Navigator.pop(context);
-      Fluttertoast.showToast(msg: "Error: " + msg.toString());
+      if (msg is FirebaseAuthException) {
+        switch (msg.code) {
+          case "invalid-credential":
+            Fluttertoast.showToast(
+                msg:
+                    "The supplied auth credential is incorrect, malformed or has expired.");
+            break;
+          case "user-not-found":
+            Fluttertoast.showToast(msg: "User with this email doesn't exist.");
+            break;
+          case "user-disabled":
+            Fluttertoast.showToast(
+                msg: "User with this email has been disabled.");
+            break;
+          case "too-many-requests":
+            Fluttertoast.showToast(msg: "Too many requests. Try again later.");
+            break;
+          case "operation-not-allowed":
+            Fluttertoast.showToast(
+                msg: "Signing in with Email and Password is not enabled.");
+            break;
+          default:
+            Fluttertoast.showToast(
+                msg: "An undefined Error happened, Please contact support.");
+        }
+      }
+      print('errornya $msg');
+
+      // Fluttertoast.showToast(msg: "Error: " + msg.toString());
     }))
         .user;
 
     if (firebaseUser != null) {
-      currentFirebaseUser = firebaseUser;
-      Fluttertoast.showToast(msg: "Login Successful.");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+      DatabaseReference driversRef =
+          FirebaseDatabase.instance.ref().child("drivers");
+      driversRef.child(firebaseUser.uid).once().then((driverKey) {
+        final snap = driverKey.snapshot;
+        if (snap.value != null) {
+          currentFirebaseUser = firebaseUser;
+          Fluttertoast.showToast(msg: "Login Successful.");
+          Navigator.push(context,
+              MaterialPageRoute(builder: (c) => const MySplashScreen()));
+        } else {
+          Fluttertoast.showToast(msg: "No record exist with this email.");
+          fAuth.signOut();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (c) => const MySplashScreen()));
+        }
+      });
     } else {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: "Error Occurred during Login.");
@@ -142,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   validateForm();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightGreenAccent,
+                  primary: Colors.lightGreenAccent,
                 ),
                 child: const Text(
                   "Login",
@@ -159,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (c) => const SignUpScreen()));
+                      MaterialPageRoute(builder: (c) => SignUpScreen()));
                 },
               ),
             ],

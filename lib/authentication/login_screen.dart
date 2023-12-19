@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext c) {
-          return const ProgressDialog(
+          return ProgressDialog(
             message: "Processing, Please wait...",
           );
         });

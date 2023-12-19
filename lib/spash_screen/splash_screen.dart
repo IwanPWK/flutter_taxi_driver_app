@@ -4,6 +4,7 @@ import 'package:flutter_taxi_driver_app/authentication/signup_screen.dart';
 
 import '../authentication/car_info_screen.dart';
 import '../authentication/login_screen.dart';
+import '../global/global.dart';
 import '../main_screen/main_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +18,14 @@ class MySplashScreen extends StatefulWidget {
 class _MySplashScreenState extends State<MySplashScreen> {
   startTimer() {
     Timer(const Duration(seconds: 3), () async {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (c) => const LoginScreen()));
+      if (await fAuth.currentUser != null) {
+        currentFirebaseUser = fAuth.currentUser;
+        Navigator.push(
+            context, MaterialPageRoute(builder: (c) => MainScreen()));
+      } else {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (c) => LoginScreen()));
+      }
     });
   }
 

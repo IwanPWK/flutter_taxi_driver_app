@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../global/global.dart';
 import '../spash_screen/splash_screen.dart';
 import '../widgets/progress_dialog.dart';
 import 'signup_screen.dart';
@@ -36,12 +38,26 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         });
 
-    Fluttertoast.showToast(msg: "Login Successful.");
-    Navigator.push(
-        context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+    final User? firebaseUser = (await fAuth
+            .signInWithEmailAndPassword(
+      email: emailTextEditingController.text.trim(),
+      password: passwordTextEditingController.text.trim(),
+    )
+            .catchError((msg) {
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: "Error: " + msg.toString());
+    }))
+        .user;
 
-    Navigator.pop(context);
-    Fluttertoast.showToast(msg: "Error Occurred during Login.");
+    if (firebaseUser != null) {
+      currentFirebaseUser = firebaseUser;
+      Fluttertoast.showToast(msg: "Login Successful.");
+      Navigator.push(
+          context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+    } else {
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: "Error Occurred during Login.");
+    }
   }
 
   @override

@@ -18,6 +18,10 @@ class _HomeTabPageState extends State<HomeTabPage> {
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
   Position? driverCurrentPosition;
 
+  String statusText = "Now Offline";
+  Color buttonColor = Colors.grey;
+  bool isDriverActive = false;
+
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
@@ -205,6 +209,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
 
   @override
   Widget build(BuildContext context) {
+    double heightMedia = MediaQuery.of(context).size.height;
     return Stack(
       children: [
         GoogleMap(
@@ -219,6 +224,50 @@ class _HomeTabPageState extends State<HomeTabPage> {
             blackThemeGoogleMap();
             locateDriverPosition();
           },
+        ),
+        // ui for online offline driver
+        statusText != "Now Online"
+            ? Container(
+                height: heightMedia,
+                width: double.infinity,
+                color: Colors.black87,
+              )
+            : Container(),
+
+        //button for online offline driver
+        Positioned(
+          top: statusText != "Now Online" ? heightMedia * 0.46 : heightMedia * 0.07,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: buttonColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                ),
+                child: statusText != "Now Online"
+                    ? Text(
+                        statusText,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.phonelink_ring,
+                        color: Colors.white,
+                        size: 26,
+                      ),
+              ),
+            ],
+          ),
         ),
       ],
     );

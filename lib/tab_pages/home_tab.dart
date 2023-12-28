@@ -1,10 +1,16 @@
 import 'dart:async';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../assistants/assistant_methods.dart';
+import '../global/global.dart';
+import 'package:intl/intl.dart';
 
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({super.key});
@@ -14,6 +20,9 @@ class HomeTabPage extends StatefulWidget {
 }
 
 class _HomeTabPageState extends State<HomeTabPage> {
+  DatabaseReference? ref = FirebaseDatabase.instance.ref().child("drivers").child(currentFirebaseUser!.uid);
+  late DatabaseReference? refNewRide;
+  String timeNow = DateFormat.yMEd().add_jms().format(DateTime.now());
   GoogleMapController? newGoogleMapController;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
   Position? driverCurrentPosition;
@@ -243,7 +252,29 @@ class _HomeTabPageState extends State<HomeTabPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (!isDriverActive) {
+                    driverIsOnlineNow();
+                    updateDriversLocationAtRealTime();
+
+                    setState(() {
+                      statusText = "Now Online";
+                      isDriverActive = true;
+                      buttonColor = Colors.transparent;
+                    });
+                    // display Toast
+                    Fluttertoast.showToast(msg: "you are online now");
+                  } else {
+                    driverIsOfflineNow();
+                    setState(() {
+                      statusText = "Now Offline";
+                      isDriverActive = false;
+                      buttonColor = Colors.grey;
+                    });
+                    // display Toast
+                    Fluttertoast.showToast(msg: "you are offline now");
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: buttonColor,
                   padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -271,5 +302,98 @@ class _HomeTabPageState extends State<HomeTabPage> {
         ),
       ],
     );
+  }
+
+  driverIsOnlineNow() async {
+    Position pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    driverCurrentPosition = pos;
+
+    Geofire.initialize("activeDrivers");
+
+    Geofire.setLocation(currentFirebaseUser!.uid, driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+    Geofire.queryAtLocation(driverCurrentPosition!.latitude, driverCurrentPosition!.longitude, 5)?.listen((map) {
+      print('cek map $map');
+      if (map != null) {
+        var callBack = map['callBack'];
+      }
+    });
+
+    // DatabaseReference ref = FirebaseDatabase.instance.ref().child("drivers").child(currentFirebaseUser!.uid);
+
+    ref!.child("startOnlineLocale").set(timeNow);
+    await ref!.child("startOnlineServer").set(ServerValue.timestamp);
+    final snapshot = await ref!.child("startOnlineServer").get();
+    if (snapshot.exists) {
+      // Mendapatkan nilai timestamp dari Firebase Realtime Database
+      int firebaseTimestamp = int.parse(snapshot.value.toString()); // Contoh timestamp dari Firebase
+
+// Konversi timestamp menjadi objek DateTime
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(firebaseTimestamp);
+
+// Format waktu dan tanggal sesuai kebutuhan
+      String formattedDateTime = DateFormat.yMEd().add_jms().format(dateTime);
+      ref!.child("startOnlineServer").set(formattedDateTime);
+      print('Waktu dari Firebase Start: $formattedDateTime');
+    }
+    DatabaseReference refNewRide = ref!.child("newRideStatus");
+    refNewRide.set("idle"); //searching for ride request
+    refNewRide.onValue.listen((event) {});
+  }
+
+  updateDriversLocationAtRealTime() {
+    streamSubscriptionPosition = Geolocator.getPositionStream().listen((Position position) {
+      driverCurrentPosition = position;
+
+      if (isDriverActive) {
+        Geofire.setLocation(currentFirebaseUser!.uid, driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+      }
+
+      LatLng latLng = LatLng(
+        driverCurrentPosition!.latitude,
+        driverCurrentPosition!.longitude,
+      );
+
+      newGoogleMapController!.animateCamera(CameraUpdate.newLatLng(latLng));
+    });
+  }
+
+  driverIsOfflineNow() async {
+    await Geofire.stopListener();
+    bool? responses = await Geofire.removeLocation(currentFirebaseUser!.uid);
+    print('cek responnya $responses');
+
+    DatabaseReference? refActiveDriver = FirebaseDatabase.instance.ref().child("activeDrivers");
+    refActiveDriver.onDisconnect();
+    refActiveDriver.remove();
+    refActiveDriver = null;
+
+    // DatabaseReference? refId = FirebaseDatabase.instance.ref().child("drivers").child(currentFirebaseUser!.uid);
+    ref!.child("lastOnlineLocale").set(timeNow);
+    await ref!.child("lastOnlineServer").set(ServerValue.timestamp);
+    final snapshot = await ref!.child("lastOnlineServer").get();
+    if (snapshot.exists) {
+      // Mendapatkan nilai timestamp dari Firebase Realtime Database
+      int firebaseTimestamp = int.parse(snapshot.value.toString()); // Contoh timestamp dari Firebase
+
+// Konversi timestamp menjadi objek DateTime
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(firebaseTimestamp);
+
+// Format waktu dan tanggal sesuai kebutuhan
+      String formattedDateTime = DateFormat.yMEd().add_jms().format(dateTime);
+      ref!.child("lastOnlineServer").set(formattedDateTime);
+      print('Waktu dari Firebase: $formattedDateTime');
+    }
+
+    DatabaseReference? refRideStatus = ref!.child("newRideStatus");
+    refRideStatus.onDisconnect();
+    refRideStatus.remove();
+    refRideStatus = null;
+
+    // Future.delayed(const Duration(milliseconds: 2000), () {
+    //   //SystemChannels.platform.invokeMethod("SystemNavigator.pop");
+    //   SystemNavigator.pop();
+    // });
   }
 }

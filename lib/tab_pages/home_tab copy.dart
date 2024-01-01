@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+// import 'dart:math';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -320,32 +320,27 @@ class _HomeTabPageState extends State<HomeTabPage> {
 
     // double initialLatitude = -7.422231;
     // double initialLongitude = 109.2410066;
-    // double initialLatitude1 = -7.422231;
-    // double initialLongitude1 = 109.2410066;
     // Geofire.initialize("activeDrivers");
 
     // // Mengubah koordinat setiap 10 detik sejauh 1 km
     // Timer.periodic(Duration(seconds: 10), (timer) {
-    //   double distance = 0.01; // Jarak dalam kilometer
-    //   double distance2 = 0.09; // Jarak dalam kilometer
+    //   double distance = 1; // Jarak dalam kilometer
     //   double bearing = Random().nextDouble() * (2 * pi); // Arah dalam radian (0 - 2 * pi)
 
     //   // Menghitung perubahan koordinat berdasarkan jarak dan arah
     //   double deltaLat = distance / 6371 * (180 / pi) * cos(initialLatitude * pi / 180);
     //   double deltaLon = distance / 6371 * (180 / pi) / sin(initialLatitude * pi / 180) * sin(bearing);
-    //   double deltaLat1 = distance / 6371 * (180 / pi) * cos(initialLatitude1 * pi / 180);
-    //   double deltaLon1 = distance / 6371 * (180 / pi) / sin(initialLatitude1 * pi / 180) * sin(bearing);
 
     //   // Update koordinat
     //   initialLatitude += deltaLat;
     //   initialLongitude += deltaLon;
-    //   initialLatitude1 += deltaLat1;
-    //   initialLongitude1 += deltaLon1;
     //   Geofire.setLocation(currentFirebaseUser!.uid, initialLatitude, initialLongitude);
-    //   Geofire.setLocation('qxlAdpzhRJT7piv6Rjqs8BtyfQd2', initialLatitude1, initialLongitude1);
 
     //   print('Latitude: $initialLatitude, Longitude: $initialLongitude');
     // });
+
+    Geofire.initialize("activeDrivers");
+    Geofire.setLocation(currentFirebaseUser!.uid, driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
     // Geofire.queryAtLocation(driverCurrentPosition!.latitude, driverCurrentPosition!.longitude, 10)?.listen((map) {
     //   print('cek map $map');
     //   if (map != null) {

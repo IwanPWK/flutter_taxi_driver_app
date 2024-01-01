@@ -310,6 +310,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
       desiredAccuracy: LocationAccuracy.high,
     );
     driverCurrentPosition = pos;
+    Geofire.initialize("activeDrivers");
+    Geofire.setLocation(currentFirebaseUser!.uid, driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
 
     // Titik awal
     // Position testCurrentPosition = Position(
@@ -322,7 +324,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
     // double initialLongitude = 109.2410066;
     // double initialLatitude1 = -7.422231;
     // double initialLongitude1 = 109.2410066;
-    // Geofire.initialize("activeDrivers");
 
     // // Mengubah koordinat setiap 10 detik sejauh 1 km
     // Timer.periodic(Duration(seconds: 10), (timer) {
@@ -355,6 +356,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     // DatabaseReference ref = FirebaseDatabase.instance.ref().child("drivers").child(currentFirebaseUser!.uid);
 
     ref!.child("startOnlineLocale").set(timeNow);
+
     await ref!.child("startOnlineServer").set(ServerValue.timestamp);
     final snapshot = await ref!.child("startOnlineServer").get();
     if (snapshot.exists) {
@@ -372,12 +374,13 @@ class _HomeTabPageState extends State<HomeTabPage> {
     DatabaseReference refNewRide = ref!.child("newRideStatus");
     refNewRide.set("idle"); //searching for ride request
     refNewRide.onValue.listen((event) {});
+    print('cek error');
   }
 
   updateDriversLocationAtRealTime() {
     streamSubscriptionPosition = Geolocator.getPositionStream().listen((Position position) {
       driverCurrentPosition = position;
-
+      print('tes ${driverCurrentPosition!.latitude}, ${driverCurrentPosition!.longitude}');
       if (isDriverActive) {
         Geofire.setLocation(currentFirebaseUser!.uid, driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
       }
